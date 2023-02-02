@@ -197,16 +197,20 @@ class ZabbixAPI(object):
         elif self.__username__ != '':
             l_user = self.__username__
             l_password = self.__password__
+        elif password != '':
+            self.auth = password
         else:
             raise ZabbixAPIException("No authentication information available.")
 
-        # don't print the raw password.
-        hashed_pw_string = "sha256(" + hashlib.sha256(l_password.encode('utf-8')).hexdigest() + ")"
-        self.debug(logging.DEBUG, "Trying to login with %s:%s" %
-                (repr(l_user), repr(hashed_pw_string)))
-        obj = self.json_obj('user.login', {'user': l_user, 'password': l_password}, auth=False)
-        result = self.do_request(obj)
-        self.auth = result['result']
+        if self.auth == '':
+            # don't print the raw password.
+            hashed_pw_string = "sha256(" + hashlib.sha256(l_password.encode('utf-8')).hexdigest() + ")"
+            self.debug(logging.DEBUG, "Trying to login with %s:%s" %
+                    (repr(l_user), repr(hashed_pw_string)))
+            obj = self.json_obj('user.login', {'user': l_user, 'password': l_password}, auth=False)
+            result = self.do_request(obj)
+            self.auth = password
+
 
     def test_login(self):
         if self.auth != '':
